@@ -111,4 +111,4 @@ npm run watch
 
 ## License
 
-Add your preferred license information here.
+MIT Innit
