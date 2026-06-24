@@ -2,7 +2,7 @@
 
 A Stream Deck plugin that displays live MSI Afterburner telemetry on key tiles.
 
-It reads metrics from a local sidecar endpoint (default: `http://localhost:9696/metrics`), lets you choose which metric to render, and supports multiple visual styles with deep layout/theme customization.
+It ships with a bundled sidecar (`AfterburnerReader.exe`) that is **automatically launched on boot** — no manual setup required. The plugin reads metrics from the sidecar's local endpoint (default: `http://localhost:9696/metrics`), lets you choose which metric to render, and supports multiple visual styles with deep layout/theme customization.
 
 ## Features
 
@@ -81,7 +81,7 @@ npm run watch
 
 1. Build the plugin.
 2. Install/load the `.sdPlugin` folder into Stream Deck (dev workflow).
-3. Add **Metric Display** action to a key.
+3. Add **Metric Display** action to a key — the sidecar starts automatically if it is not already running.
 4. Open Property Inspector and configure:
    - Endpoint URL
    - Metric
@@ -99,8 +99,8 @@ npm run watch
 ## Troubleshooting
 
 - **Blank/ERR tile**
-  - Verify endpoint is reachable in browser: `http://localhost:9696/metrics`
-  - Confirm sidecar is running and returning valid JSON
+  - The plugin will attempt to auto-start the sidecar on boot; if the tile still shows an error, verify the endpoint is reachable in a browser: `http://localhost:9696/metrics`
+  - Confirm `AfterburnerReader.exe` is present in `bin/` and was not blocked by antivirus
 - **No metrics in dropdown**
   - Ensure response has a `metrics` object
   - Check endpoint URL in Property Inspector
