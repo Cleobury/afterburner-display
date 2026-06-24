@@ -248,7 +248,7 @@ type DisplaySettings = {
 
 type Theme = "default" | "neon" | "minimal" | "retro" | "custom";
 
-type ViewStyle = "value" | "line" | "line-filled" | "gauge";
+type ViewStyle = "value" | "line" | "line-filled" | "gauge" | "dot-matrix";
 
 type SuffixMode = "off" | "inline" | "below";
 
@@ -453,7 +453,7 @@ function themeAccentColor(settings: NormalizedDisplaySettings, metricKey: string
 }
 
 function normalizeViewStyle(value: string | undefined): ViewStyle {
-	if (value === "line" || value === "line-filled" || value === "gauge") {
+	if (value === "line" || value === "line-filled" || value === "gauge" || value === "dot-matrix") {
 		return value;
 	}
 	return "value";
@@ -560,6 +560,9 @@ function renderMetricCard(settings: NormalizedDisplaySettings, metricKey: string
 	if (settings.viewStyle === "gauge") {
 		return renderGaugeCard(settings, metricKey, label, value, history);
 	}
+	if (settings.viewStyle === "dot-matrix") {
+		return renderDotMatrixCard(settings, metricKey, label, value, history);
+	}
 	return renderValueCard(settings, metricKey, label, value);
 }
 
@@ -573,16 +576,38 @@ function renderValueCard(settings: NormalizedDisplaySettings, metricKey: string,
 	const safeUnit = escapeXml(unit);
 	const safeFont = escapeXml(palette.fontFamily);
 	const unitY = Math.min(136, settings.valueY + 22);
-	const labelStrokeAttrs = textStrokeAttrs(settings.labelStrokeColor, settings.labelStrokeWidth);
-	const valueStrokeAttrs = textStrokeAttrs(settings.valueStrokeColor, settings.valueStrokeWidth);
 	const labelEl = (!settings.hideLabel && safeLabel)
-		? `<text x="${settings.labelX}" y="${settings.labelY}" text-anchor="middle" fill="${palette.labelColor}" font-family="${safeFont}" font-size="${settings.labelSize}" font-weight="600"${labelStrokeAttrs}>${safeLabel}</text>`
+		? renderTextWithOutline(
+			settings.labelX,
+			settings.labelY,
+			"middle",
+			palette.labelColor,
+			safeFont,
+			settings.labelSize,
+			"600",
+			safeLabel,
+			settings.labelStrokeColor,
+			settings.labelStrokeWidth,
+		)
 		: "";
 	const neonGlow = settings.theme === "neon" ? `<filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>` : "";
 	const glowAttr = settings.theme === "neon" ? ` filter="url(#glow)"` : "";
 	const valueTextWithSuffix = suffixTextWithMode(settings.suffixMode, safeValue, safeUnit, accent, settings.valueSize);
 	const belowSuffixEl = suffixBelowElement(settings.suffixMode, safeUnit, settings.valueX, unitY, accent, safeFont, 16, glowAttr);
-	return svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 ${SVG_SIZE} ${SVG_SIZE}"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${palette.bg0}"/><stop offset="100%" stop-color="${palette.bg1}"/></linearGradient>${neonGlow}</defs><rect x="2" y="2" width="140" height="140" rx="${CARD_RADIUS}" fill="url(#bg)"/><rect x="8" y="8" width="128" height="128" rx="${CARD_RADIUS - 4}" fill="none" stroke="${palette.borderColor}"/>${labelEl}<text x="${settings.valueX}" y="${settings.valueY}" text-anchor="middle" fill="${palette.valueColor}" font-family="${safeFont}" font-size="${settings.valueSize}" font-weight="700"${valueStrokeAttrs}${glowAttr}>${valueTextWithSuffix}</text>${belowSuffixEl}</svg>`);
+	const valueEl = renderTextWithOutline(
+		settings.valueX,
+		settings.valueY,
+		"middle",
+		palette.valueColor,
+		safeFont,
+		settings.valueSize,
+		"700",
+		valueTextWithSuffix,
+		settings.valueStrokeColor,
+		settings.valueStrokeWidth,
+		glowAttr,
+	);
+	return svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 ${SVG_SIZE} ${SVG_SIZE}"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${palette.bg0}"/><stop offset="100%" stop-color="${palette.bg1}"/></linearGradient>${neonGlow}</defs><rect x="2" y="2" width="140" height="140" rx="${CARD_RADIUS}" fill="url(#bg)"/><rect x="8" y="8" width="128" height="128" rx="${CARD_RADIUS - 4}" fill="none" stroke="${palette.borderColor}"/>${labelEl}${valueEl}${belowSuffixEl}</svg>`);
 }
 
 function renderLineChartCard(settings: NormalizedDisplaySettings, metricKey: string, label: string, value: number, history: number[], filled: boolean): string {
@@ -594,12 +619,21 @@ function renderLineChartCard(settings: NormalizedDisplaySettings, metricKey: str
 	const safeUnit = escapeXml(unit);
 	const safeFont = escapeXml(palette.fontFamily);
 	const unitY = Math.min(136, settings.valueY + 22);
-	const labelStrokeAttrs = textStrokeAttrs(settings.labelStrokeColor, settings.labelStrokeWidth);
-	const valueStrokeAttrs = textStrokeAttrs(settings.valueStrokeColor, settings.valueStrokeWidth);
 	const valueTextWithSuffix = suffixTextWithMode(settings.suffixMode, safeValue, safeUnit, accent, settings.valueSize);
 	const belowSuffixEl = suffixBelowElement(settings.suffixMode, safeUnit, settings.valueX, unitY, accent, safeFont, 14);
 	const lineLabelEl = (!settings.hideLabel && safeLabel)
-		? `<text x="${settings.labelX}" y="${settings.labelY}" text-anchor="middle" fill="${palette.labelColor}" font-family="${safeFont}" font-size="${settings.labelSize}" font-weight="600"${labelStrokeAttrs}>${safeLabel}</text>`
+		? renderTextWithOutline(
+			settings.labelX,
+			settings.labelY,
+			"middle",
+			palette.labelColor,
+			safeFont,
+			settings.labelSize,
+			"600",
+			safeLabel,
+			settings.labelStrokeColor,
+			settings.labelStrokeWidth,
+		)
 		: "";
 	const chartLeft = 12;
 	const chartTop = 16;
@@ -618,7 +652,19 @@ function renderLineChartCard(settings: NormalizedDisplaySettings, metricKey: str
 	});
 	const linePath = points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x.toFixed(2)},${point.y.toFixed(2)}`).join(" ");
 	const areaPath = `M${points[0].x.toFixed(2)},${(chartTop + chartHeight).toFixed(2)} ${linePath.replaceAll("M", "L")} L${points[points.length - 1].x.toFixed(2)},${(chartTop + chartHeight).toFixed(2)} Z`;
-	return svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 ${SVG_SIZE} ${SVG_SIZE}"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${palette.bg0}"/><stop offset="100%" stop-color="${palette.bg1}"/></linearGradient><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${accent}" stop-opacity="0.45"/><stop offset="100%" stop-color="${accent}" stop-opacity="0.02"/></linearGradient></defs><rect x="2" y="2" width="140" height="140" rx="${CARD_RADIUS}" fill="url(#bg)"/><rect x="8" y="8" width="128" height="128" rx="${CARD_RADIUS - 4}" fill="none" stroke="${palette.borderColor}"/>${filled ? `<path d="${areaPath}" fill="url(#fill)"/>` : ""}<path d="${linePath}" fill="none" stroke="${accent}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${lineLabelEl}<text x="${settings.valueX}" y="${settings.valueY}" text-anchor="middle" fill="${palette.valueColor}" font-family="${safeFont}" font-size="${settings.valueSize}" font-weight="700"${valueStrokeAttrs}>${valueTextWithSuffix}</text>${belowSuffixEl}</svg>`);
+	const valueEl = renderTextWithOutline(
+		settings.valueX,
+		settings.valueY,
+		"middle",
+		palette.valueColor,
+		safeFont,
+		settings.valueSize,
+		"700",
+		valueTextWithSuffix,
+		settings.valueStrokeColor,
+		settings.valueStrokeWidth,
+	);
+	return svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 ${SVG_SIZE} ${SVG_SIZE}"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${palette.bg0}"/><stop offset="100%" stop-color="${palette.bg1}"/></linearGradient><linearGradient id="fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${accent}" stop-opacity="0.45"/><stop offset="100%" stop-color="${accent}" stop-opacity="0.02"/></linearGradient></defs><rect x="2" y="2" width="140" height="140" rx="${CARD_RADIUS}" fill="url(#bg)"/><rect x="8" y="8" width="128" height="128" rx="${CARD_RADIUS - 4}" fill="none" stroke="${palette.borderColor}"/>${filled ? `<path d="${areaPath}" fill="url(#fill)"/>` : ""}<path d="${linePath}" fill="none" stroke="${accent}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${lineLabelEl}${valueEl}${belowSuffixEl}</svg>`);
 }
 
 function renderGaugeCard(settings: NormalizedDisplaySettings, metricKey: string, label: string, value: number, history: number[]): string {
@@ -630,24 +676,115 @@ function renderGaugeCard(settings: NormalizedDisplaySettings, metricKey: string,
 	const gaugeRange = inferGaugeRange(metricKey, history, value);
 	const { min, max } = resolveScaleRange(settings, gaugeRange.min, gaugeRange.max);
 	const progress = Math.max(0, Math.min(1, (value - min) / Math.max(1, max - min)));
-	const startAngle = 135;
-	const endAngle = 405;
+	// Draw a near-full ring and keep a deliberate gap centered at the bottom.
+	const startAngle = 210;
+	const endAngle = 510;
 	const progressAngle = startAngle + (endAngle - startAngle) * progress;
 	const center = 72;
-	const radius = 48;
+	const radius = 60;
 	const trackPath = describeArc(center, center, radius, startAngle, endAngle);
 	const valuePath = describeArc(center, center, radius, startAngle, progressAngle);
 	const safeUnit = escapeXml(unit);
 	const safeValue = escapeXml(formatMetricValue(value, settings.decimals));
 	const unitY = Math.min(136, settings.valueY + 20);
-	const labelStrokeAttrs = textStrokeAttrs(settings.labelStrokeColor, settings.labelStrokeWidth);
-	const valueStrokeAttrs = textStrokeAttrs(settings.valueStrokeColor, settings.valueStrokeWidth);
 	const valueTextWithSuffix = suffixTextWithMode(settings.suffixMode, safeValue, safeUnit, accent, settings.valueSize);
 	const belowSuffixEl = suffixBelowElement(settings.suffixMode, safeUnit, settings.valueX, unitY, accent, safeFont, 14);
 	const gaugeLabelEl = (!settings.hideLabel && safeLabel)
-		? `<text x="${settings.labelX}" y="${settings.labelY}" text-anchor="middle" fill="${palette.labelColor}" font-family="${safeFont}" font-size="${settings.labelSize}" font-weight="600"${labelStrokeAttrs}>${safeLabel}</text>`
+		? renderTextWithOutline(
+			settings.labelX,
+			settings.labelY,
+			"middle",
+			palette.labelColor,
+			safeFont,
+			settings.labelSize,
+			"600",
+			safeLabel,
+			settings.labelStrokeColor,
+			settings.labelStrokeWidth,
+		)
 		: "";
-	return svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 ${SVG_SIZE} ${SVG_SIZE}"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${palette.bg0}"/><stop offset="100%" stop-color="${palette.bg1}"/></linearGradient></defs><rect x="2" y="2" width="140" height="140" rx="${CARD_RADIUS}" fill="url(#bg)"/><rect x="8" y="8" width="128" height="128" rx="${CARD_RADIUS - 4}" fill="none" stroke="${palette.borderColor}"/><path d="${trackPath}" fill="none" stroke="${palette.trackColor}" stroke-width="12" stroke-linecap="round"/><path d="${valuePath}" fill="none" stroke="${accent}" stroke-width="12" stroke-linecap="round"/>${gaugeLabelEl}<text x="${settings.valueX}" y="${settings.valueY}" text-anchor="middle" fill="${palette.valueColor}" font-family="${safeFont}" font-size="${settings.valueSize}" font-weight="700"${valueStrokeAttrs}>${valueTextWithSuffix}</text>${belowSuffixEl}</svg>`);
+	const valueEl = renderTextWithOutline(
+		settings.valueX,
+		settings.valueY,
+		"middle",
+		palette.valueColor,
+		safeFont,
+		settings.valueSize,
+		"700",
+		valueTextWithSuffix,
+		settings.valueStrokeColor,
+		settings.valueStrokeWidth,
+	);
+	const trackWidth = 16;
+	return svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 ${SVG_SIZE} ${SVG_SIZE}"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${palette.bg0}"/><stop offset="100%" stop-color="${palette.bg1}"/></linearGradient></defs><rect x="2" y="2" width="140" height="140" rx="${CARD_RADIUS}" fill="url(#bg)"/><rect x="8" y="8" width="128" height="128" rx="${CARD_RADIUS - 4}" fill="none" stroke="${palette.borderColor}"/><path d="${trackPath}" fill="none" stroke="${palette.trackColor}" stroke-width="${trackWidth}" stroke-linecap="round"/><path d="${valuePath}" fill="none" stroke="${accent}" stroke-width="${trackWidth}" stroke-linecap="round"/>${gaugeLabelEl}${valueEl}${belowSuffixEl}</svg>`);
+}
+
+function renderDotMatrixCard(settings: NormalizedDisplaySettings, metricKey: string, label: string, value: number, history: number[]): string {
+	const palette = themeFor(settings);
+	const safeFont = escapeXml(palette.fontFamily);
+	const safeLabel = escapeXml(label);
+	const safeUnit = escapeXml(inferUnit(metricKey).trim());
+	const safeValue = escapeXml(formatMetricValue(value, settings.decimals));
+	const accent = themeAccentColor(settings, metricKey);
+	const range = inferGaugeRange(metricKey, history, value);
+	const { min, max } = resolveScaleRange(settings, range.min, range.max);
+	const progress = Math.max(0, Math.min(1, (value - min) / Math.max(1, max - min)));
+
+	const gridLeft = 12;
+	const gridTop = 12;
+	const gridRight = 132;
+	const gridBottom = 132;
+	const cols = 12;
+	const rows = 10;
+	const totalDots = cols * rows;
+	const filledDots = Math.round(progress * totalDots);
+	const xStep = (gridRight - gridLeft) / Math.max(1, cols - 1);
+	const yStep = (gridBottom - gridTop) / Math.max(1, rows - 1);
+	const dotRadius = 3.8;
+
+	const dotElements = Array.from({ length: totalDots }, (_, index) => {
+		const col = index % cols;
+		const rowFromBottom = Math.floor(index / cols);
+		const row = rows - 1 - rowFromBottom;
+		const x = gridLeft + col * xStep;
+		const y = gridTop + row * yStep;
+		const isFilled = index < filledDots;
+		const fill = isFilled ? accent : palette.trackColor;
+		const opacity = isFilled ? 0.95 : 0.4;
+		return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${dotRadius}" fill="${fill}" fill-opacity="${opacity}"/>`;
+	}).join("");
+
+	const labelEl = (!settings.hideLabel && safeLabel)
+		? renderTextWithOutline(
+			settings.labelX,
+			settings.labelY,
+			"middle",
+			palette.labelColor,
+			safeFont,
+			settings.labelSize,
+			"600",
+			safeLabel,
+			settings.labelStrokeColor,
+			settings.labelStrokeWidth,
+		)
+		: "";
+	const valueTextWithSuffix = suffixTextWithMode(settings.suffixMode, safeValue, safeUnit, accent, settings.valueSize);
+	const valueEl = renderTextWithOutline(
+		settings.valueX,
+		settings.valueY,
+		"middle",
+		palette.valueColor,
+		safeFont,
+		settings.valueSize,
+		"700",
+		valueTextWithSuffix,
+		settings.valueStrokeColor,
+		settings.valueStrokeWidth,
+	);
+	const unitY = Math.min(136, settings.valueY + 20);
+	const belowSuffixEl = suffixBelowElement(settings.suffixMode, safeUnit, settings.valueX, unitY, accent, safeFont, 14);
+
+	return svgToDataUri(`<svg xmlns="http://www.w3.org/2000/svg" width="${SVG_SIZE}" height="${SVG_SIZE}" viewBox="0 0 ${SVG_SIZE} ${SVG_SIZE}"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${palette.bg0}"/><stop offset="100%" stop-color="${palette.bg1}"/></linearGradient></defs><rect x="2" y="2" width="140" height="140" rx="${CARD_RADIUS}" fill="url(#bg)"/><rect x="8" y="8" width="128" height="128" rx="${CARD_RADIUS - 4}" fill="none" stroke="${palette.borderColor}"/>${dotElements}${labelEl}${valueEl}${belowSuffixEl}</svg>`);
 }
 
 function suffixTextWithMode(mode: SuffixMode, safeValue: string, safeUnit: string, accent: string, valueSize: number): string {
@@ -668,12 +805,28 @@ function suffixBelowElement(mode: SuffixMode, safeUnit: string, x: number, y: nu
 	return `<text x="${x}" y="${y}" text-anchor="middle" fill="${accent}" font-family="${fontFamily}" font-size="${fontSize}" font-weight="600"${extraAttrs}>${safeUnit}</text>`;
 }
 
-function textStrokeAttrs(color: string, width: number): string {
-	if (width <= 0) {
-		return "";
+function renderTextWithOutline(
+	x: number,
+	y: number,
+	anchor: "start" | "middle" | "end",
+	fillColor: string,
+	fontFamily: string,
+	fontSize: number,
+	fontWeight: string,
+	content: string,
+	strokeColor: string,
+	strokeWidth: number,
+	extraAttrs = "",
+): string {
+	const baseAttrs = `x="${x}" y="${y}" text-anchor="${anchor}" font-family="${fontFamily}" font-size="${fontSize}" font-weight="${fontWeight}"`;
+	if (strokeWidth <= 0) {
+		return `<text ${baseAttrs} fill="${fillColor}"${extraAttrs}>${content}</text>`;
 	}
-	const safeColor = escapeXml(color);
-	return ` stroke="${safeColor}" stroke-width="${width.toFixed(2)}" paint-order="stroke fill" stroke-linejoin="round"`;
+	const safeStroke = escapeXml(strokeColor);
+	const outlineWidth = (strokeWidth * 2).toFixed(2);
+	const outlineEl = `<text ${baseAttrs} fill="none" stroke="${safeStroke}" stroke-width="${outlineWidth}" stroke-linejoin="round">${content}</text>`;
+	const fillEl = `<text ${baseAttrs} fill="${fillColor}"${extraAttrs}>${content}</text>`;
+	return `${outlineEl}${fillEl}`;
 }
 
 function resolveScaleRange(settings: NormalizedDisplaySettings, autoMin: number, autoMax: number): { min: number; max: number } {
@@ -731,10 +884,11 @@ function polarToCartesian(centerX: number, centerY: number, radius: number, angl
 }
 
 function describeArc(centerX: number, centerY: number, radius: number, startAngle: number, endAngle: number): string {
-	const start = polarToCartesian(centerX, centerY, radius, endAngle);
-	const end = polarToCartesian(centerX, centerY, radius, startAngle);
-	const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-	return ["M", start.x, start.y, "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y].join(" ");
+	const start = polarToCartesian(centerX, centerY, radius, startAngle);
+	const end = polarToCartesian(centerX, centerY, radius, endAngle);
+	const angleSpan = ((endAngle - startAngle) % 360 + 360) % 360;
+	const largeArcFlag = angleSpan > 180 ? "1" : "0";
+	return ["M", start.x, start.y, "A", radius, radius, 0, largeArcFlag, 1, end.x, end.y].join(" ");
 }
 
 function escapeXml(value: string): string {

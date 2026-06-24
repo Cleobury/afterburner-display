@@ -169,6 +169,7 @@
             <option value="line">Line Chart</option>
             <option value="line-filled">Line Chart (Filled)</option>
             <option value="gauge">Gauge</option>
+            <option value="dot-matrix">Dot Matrix</option>
         </select>
     </div>
 
@@ -459,7 +460,7 @@
         }
 
         function normalizeViewStyle(value) {
-            if (value === "line" || value === "line-filled" || value === "gauge") {
+            if (value === "line" || value === "line-filled" || value === "gauge" || value === "dot-matrix") {
                 return value;
             }
             return "value";
