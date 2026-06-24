@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build and cache output
+*.tsbuildinfo
+.rollup.cache/
+
+# Stream Deck plugin runtime/build artifacts
+com.lee-cleobury.afterburner-display.sdPlugin/bin/
+com.lee-cleobury.afterburner-display.sdPlugin/logs/
+
+# Editor / OS noise
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

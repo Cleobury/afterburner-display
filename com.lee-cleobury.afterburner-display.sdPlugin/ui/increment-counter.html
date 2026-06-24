@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <title>AfterBurner Metric Settings</title>
+    <meta charset="utf-8" />
+    <style>
+        body {
+            margin: 12px;
+            color: #e8e8e8;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            background: #1f1f1f;
+        }
+
+        .field {
+            display: grid;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        label {
+            font-size: 12px;
+            color: #bdbdbd;
+        }
+
+        input,
+        select {
+            height: 30px;
+            border: 1px solid #3f3f3f;
+            background: #2b2b2b;
+            color: #f3f3f3;
+            border-radius: 4px;
+            padding: 0 8px;
+            box-sizing: border-box;
+        }
+
+        #status {
+            min-height: 18px;
+            font-size: 11px;
+            color: #8fb7ff;
+        }
+
+        #customColors {
+            border: 1px solid #3f3f3f;
+            border-radius: 6px;
+            padding: 10px 10px 4px;
+            margin-bottom: 12px;
+        }
+
+        .color-row {
+            display: grid;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .color-row label {
+            font-size: 11px;
+            color: #bdbdbd;
+        }
+
+        .color-swatch-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        input[type="color"] {
+            width: 32px;
+            height: 30px;
+            padding: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .color-text {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="field">
+        <label for="endpointUrl">Endpoint URL</label>
+        <input id="endpointUrl" type="text" value="http://localhost:9696/metrics" />
+    </div>
+
+    <div class="field">
+        <label for="theme">Theme Preset</label>
+        <select id="theme">
+            <option value="default">Default</option>
+            <option value="neon">Neon</option>
+            <option value="minimal">Minimal</option>
+            <option value="retro">Retro CRT</option>
+            <option value="custom">Custom</option>
+        </select>
+    </div>
+
+    <div id="customColors" style="display:none">
+        <div class="color-row">
+            <label>Background (top)</label>
+            <div class="color-swatch-row">
+                <input type="color" id="customBg0" value="#0f172a" />
+                <input type="text" id="customBg0Text" value="#0f172a" class="color-text" />
+            </div>
+        </div>
+        <div class="color-row">
+            <label>Background (bottom)</label>
+            <div class="color-swatch-row">
+                <input type="color" id="customBg1" value="#1e293b" />
+                <input type="text" id="customBg1Text" value="#1e293b" class="color-text" />
+            </div>
+        </div>
+        <div class="color-row">
+            <label>Border</label>
+            <div class="color-swatch-row">
+                <input type="color" id="customBorderColor" value="#334155" />
+                <input type="text" id="customBorderColorText" value="#334155" class="color-text" />
+            </div>
+        </div>
+        <div class="color-row">
+            <label>Label text</label>
+            <div class="color-swatch-row">
+                <input type="color" id="customLabelColor" value="#cbd5e1" />
+                <input type="text" id="customLabelColorText" value="#cbd5e1" class="color-text" />
+            </div>
+        </div>
+        <div class="color-row">
+            <label>Value text</label>
+            <div class="color-swatch-row">
+                <input type="color" id="customValueColor" value="#f8fafc" />
+                <input type="text" id="customValueColorText" value="#f8fafc" class="color-text" />
+            </div>
+        </div>
+        <div class="color-row">
+            <label>Accent / unit</label>
+            <div class="color-swatch-row">
+                <input type="color" id="customAccentColor" value="#22d3ee" />
+                <input type="text" id="customAccentColorText" value="#22d3ee" class="color-text" />
+            </div>
+        </div>
+        <div class="color-row">
+            <label>Track (gauge)</label>
+            <div class="color-swatch-row">
+                <input type="color" id="customTrackColor" value="#334155" />
+                <input type="text" id="customTrackColorText" value="#334155" class="color-text" />
+            </div>
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="metricKey">Metric</label>
+        <select id="metricKey"></select>
+    </div>
+
+    <div class="field">
+        <label>Label</label>
+        <div style="display:flex; gap:8px; align-items:center;">
+            <input id="hideLabel" type="checkbox" style="width:18px;height:18px;flex-shrink:0;cursor:pointer;" title="Hide label on key" />
+            <label for="hideLabel" style="font-size:11px;color:#71717a;flex-shrink:0;">Hide</label>
+            <input id="label" type="text" value="GPU1 Temp" style="flex:1;" />
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="viewStyle">Graph Style</label>
+        <select id="viewStyle">
+            <option value="value">Just Value</option>
+            <option value="line">Line Chart</option>
+            <option value="line-filled">Line Chart (Filled)</option>
+            <option value="gauge">Gauge</option>
+        </select>
+    </div>
+
+    <div class="field">
+        <label for="fontFamily">Font Family</label>
+        <input id="fontFamily" type="text" value="Segoe UI" />
+    </div>
+
+    <div class="field">
+        <label for="labelX">Label X Position (8-128): <span id="labelXValue">72</span></label>
+        <input id="labelX" type="range" min="8" max="128" step="1" value="72" />
+    </div>
+
+    <div class="field">
+        <label for="labelY">Label Y Position (12-132): <span id="labelYValue">34</span></label>
+        <input id="labelY" type="range" min="12" max="132" step="1" value="34" />
+    </div>
+
+    <div class="field">
+        <label for="labelSize">Label Size (10-24): <span id="labelSizeValue">14</span></label>
+        <input id="labelSize" type="range" min="10" max="24" step="1" value="14" />
+    </div>
+
+    <div class="field">
+        <label for="valueX">Value X Position (8-128): <span id="valueXValue">72</span></label>
+        <input id="valueX" type="range" min="8" max="128" step="1" value="72" />
+    </div>
+
+    <div class="field">
+        <label for="valueY">Value Y Position (24-132): <span id="valueYValue">86</span></label>
+        <input id="valueY" type="range" min="24" max="132" step="1" value="86" />
+    </div>
+
+    <div class="field">
+        <label for="valueSize">Value Size (24-72): <span id="valueSizeValue">48</span></label>
+        <input id="valueSize" type="range" min="24" max="72" step="1" value="48" />
+    </div>
+
+    <div class="field">
+        <label for="suffixMode">Suffix Display</label>
+        <select id="suffixMode">
+            <option value="inline">Beside Value</option>
+            <option value="below">Below Value</option>
+            <option value="off">Hidden</option>
+        </select>
+    </div>
+
+    <div class="field">
+        <label>Label Border Color</label>
+        <div class="color-swatch-row">
+            <input type="color" id="labelStrokeColor" value="#000000" />
+            <input type="text" id="labelStrokeColorText" value="#000000" class="color-text" />
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="labelStrokeWidth">Label Border Thickness (0-6): <span id="labelStrokeWidthValue">0</span></label>
+        <input id="labelStrokeWidth" type="range" min="0" max="6" step="0.25" value="0" />
+    </div>
+
+    <div class="field">
+        <label>Value Border Color</label>
+        <div class="color-swatch-row">
+            <input type="color" id="valueStrokeColor" value="#000000" />
+            <input type="text" id="valueStrokeColorText" value="#000000" class="color-text" />
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="valueStrokeWidth">Value Border Thickness (0-6): <span id="valueStrokeWidthValue">0</span></label>
+        <input id="valueStrokeWidth" type="range" min="0" max="6" step="0.25" value="0" />
+    </div>
+
+    <div class="field">
+        <label for="decimals">Decimals (0-3)</label>
+        <input id="decimals" type="number" min="0" max="3" step="1" value="0" />
+    </div>
+
+    <div class="field">
+        <label for="refreshMs">Polling Rate (ms)</label>
+        <input id="refreshMs" type="number" min="500" max="5000" step="100" value="1000" />
+    </div>
+
+    <div class="field">
+        <label for="lineSamples">Line Samples (10-60)</label>
+        <input id="lineSamples" type="number" min="10" max="60" step="1" value="30" />
+    </div>
+
+    <div class="field">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input id="useCustomScale" type="checkbox" style="width:18px;height:18px;cursor:pointer;" />
+            Use custom graph scale
+        </label>
+    </div>
+
+    <div class="field">
+        <label for="scaleMin">Graph Min</label>
+        <input id="scaleMin" type="number" step="0.1" value="0" />
+    </div>
+
+    <div class="field">
+        <label for="scaleMax">Graph Max</label>
+        <input id="scaleMax" type="number" step="0.1" value="100" />
+    </div>
+
+    <div id="status"></div>
+
+    <script>
+        const THEME_PRESETS = {
+            default:  { viewStyle: "value",       fontFamily: "Segoe UI",    valueSize: 48 },
+            neon:     { viewStyle: "line-filled",  fontFamily: "Consolas",    valueSize: 44 },
+            minimal:  { viewStyle: "value",        fontFamily: "Segoe UI",    valueSize: 52 },
+            retro:    { viewStyle: "line",          fontFamily: "Courier New", valueSize: 40 },
+            custom:   { viewStyle: null,            fontFamily: null,          valueSize: null },
+        };
+
+        const defaults = {
+            endpointUrl: "http://localhost:9696/metrics",
+            metricKey: "gpu1_temperature",
+            label: "GPU1 Temp",
+            hideLabel: false,
+            labelX: 72,
+            labelY: 34,
+            labelSize: 14,
+            labelStrokeColor: "#000000",
+            labelStrokeWidth: 0,
+            valueX: 72,
+            valueY: 86,
+            valueSize: 48,
+            valueStrokeColor: "#000000",
+            valueStrokeWidth: 0,
+            suffixMode: "inline",
+            useCustomScale: false,
+            scaleMin: 0,
+            scaleMax: 100,
+            viewStyle: "value",
+            fontFamily: "Segoe UI",
+            decimals: 0,
+            refreshMs: 1000,
+            lineSamples: 30,
+            theme: "default",
+            customBg0: "#0f172a",
+            customBg1: "#1e293b",
+            customBorderColor: "#334155",
+            customLabelColor: "#cbd5e1",
+            customValueColor: "#f8fafc",
+            customAccentColor: "#22d3ee",
+            customTrackColor: "#334155",
+        };
+
+        const controls = {
+            theme: document.getElementById("theme"),
+            customColors: document.getElementById("customColors"),
+            hideLabel: document.getElementById("hideLabel"),
+            customBg0: document.getElementById("customBg0"),
+            customBg0Text: document.getElementById("customBg0Text"),
+            customBg1: document.getElementById("customBg1"),
+            customBg1Text: document.getElementById("customBg1Text"),
+            customBorderColor: document.getElementById("customBorderColor"),
+            customBorderColorText: document.getElementById("customBorderColorText"),
+            customLabelColor: document.getElementById("customLabelColor"),
+            customLabelColorText: document.getElementById("customLabelColorText"),
+            customValueColor: document.getElementById("customValueColor"),
+            customValueColorText: document.getElementById("customValueColorText"),
+            customAccentColor: document.getElementById("customAccentColor"),
+            customAccentColorText: document.getElementById("customAccentColorText"),
+            customTrackColor: document.getElementById("customTrackColor"),
+            customTrackColorText: document.getElementById("customTrackColorText"),
+            endpointUrl: document.getElementById("endpointUrl"),
+            metricKey: document.getElementById("metricKey"),
+            label: document.getElementById("label"),
+            labelX: document.getElementById("labelX"),
+            labelXValue: document.getElementById("labelXValue"),
+            labelY: document.getElementById("labelY"),
+            labelYValue: document.getElementById("labelYValue"),
+            labelSize: document.getElementById("labelSize"),
+            labelSizeValue: document.getElementById("labelSizeValue"),
+            labelStrokeColor: document.getElementById("labelStrokeColor"),
+            labelStrokeColorText: document.getElementById("labelStrokeColorText"),
+            labelStrokeWidth: document.getElementById("labelStrokeWidth"),
+            labelStrokeWidthValue: document.getElementById("labelStrokeWidthValue"),
+            valueX: document.getElementById("valueX"),
+            valueXValue: document.getElementById("valueXValue"),
+            valueY: document.getElementById("valueY"),
+            valueYValue: document.getElementById("valueYValue"),
+            valueSize: document.getElementById("valueSize"),
+            valueSizeValue: document.getElementById("valueSizeValue"),
+            suffixMode: document.getElementById("suffixMode"),
+            valueStrokeColor: document.getElementById("valueStrokeColor"),
+            valueStrokeColorText: document.getElementById("valueStrokeColorText"),
+            valueStrokeWidth: document.getElementById("valueStrokeWidth"),
+            valueStrokeWidthValue: document.getElementById("valueStrokeWidthValue"),
+            useCustomScale: document.getElementById("useCustomScale"),
+            scaleMin: document.getElementById("scaleMin"),
+            scaleMax: document.getElementById("scaleMax"),
+            viewStyle: document.getElementById("viewStyle"),
+            fontFamily: document.getElementById("fontFamily"),
+            decimals: document.getElementById("decimals"),
+            refreshMs: document.getElementById("refreshMs"),
+            lineSamples: document.getElementById("lineSamples"),
+            status: document.getElementById("status"),
+        };
+
+        let websocket;
+        let context;
+        let actionUuid;
+        let settings = { ...defaults };
+
+        function connectElgatoStreamDeckSocket(port, uuid, registerEvent, info, actionInfo) {
+            void info;
+
+            context = uuid;
+            actionUuid = JSON.parse(actionInfo).action;
+            websocket = new WebSocket(`ws://127.0.0.1:${port}`);
+
+            websocket.onopen = () => {
+                websocket.send(JSON.stringify({ event: registerEvent, uuid }));
+                websocket.send(JSON.stringify({ event: "getSettings", context }));
+                requestMetricList();
+            };
+
+            websocket.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                if (message.event === "didReceiveSettings") {
+                    settings = normalize({ ...settings, ...message.payload.settings });
+                    applySettingsToForm();
+                    requestMetricList();
+                    return;
+                }
+
+                if (message.event === "sendToPropertyInspector" && message.payload && message.payload.type === "metrics-list") {
+                    updateMetricOptions(message.payload.keys || [], message.payload.error || "");
+                }
+            };
+        }
+
+        function normalize(input) {
+            return {
+                endpointUrl: (input.endpointUrl || defaults.endpointUrl).trim(),
+                metricKey: (input.metricKey || defaults.metricKey).trim(),
+                label: (input.label !== undefined ? input.label : defaults.label).trim(),
+                hideLabel: input.hideLabel === true,
+                labelX: clampInt(input.labelX, 8, 128, defaults.labelX),
+                labelY: clampInt(input.labelY, 12, 132, defaults.labelY),
+                labelSize: clampInt(input.labelSize, 10, 24, defaults.labelSize),
+                labelStrokeColor: normalizeColor(input.labelStrokeColor, defaults.labelStrokeColor),
+                labelStrokeWidth: clampNumber(input.labelStrokeWidth, 0, 6, defaults.labelStrokeWidth),
+                valueX: clampInt(input.valueX, 8, 128, defaults.valueX),
+                valueY: clampInt(input.valueY, 24, 132, defaults.valueY),
+                valueSize: clampInt(input.valueSize ?? input.fontSize, 24, 72, defaults.valueSize),
+                valueStrokeColor: normalizeColor(input.valueStrokeColor, defaults.valueStrokeColor),
+                valueStrokeWidth: clampNumber(input.valueStrokeWidth, 0, 6, defaults.valueStrokeWidth),
+                suffixMode: normalizeSuffixMode(input.suffixMode),
+                useCustomScale: input.useCustomScale === true,
+                scaleMin: clampNumber(input.scaleMin, -100000, 100000, defaults.scaleMin),
+                scaleMax: clampNumber(input.scaleMax, -100000, 100000, defaults.scaleMax),
+                viewStyle: normalizeViewStyle(input.viewStyle),
+                fontFamily: (input.fontFamily || defaults.fontFamily).trim(),
+                decimals: clampInt(input.decimals, 0, 3, defaults.decimals),
+                refreshMs: clampInt(input.refreshMs, 500, 5000, defaults.refreshMs),
+                lineSamples: clampInt(input.lineSamples, 10, 60, defaults.lineSamples),
+                theme: normalizeTheme(input.theme),
+                customBg0: normalizeColor(input.customBg0, defaults.customBg0),
+                customBg1: normalizeColor(input.customBg1, defaults.customBg1),
+                customBorderColor: normalizeColor(input.customBorderColor, defaults.customBorderColor),
+                customLabelColor: normalizeColor(input.customLabelColor, defaults.customLabelColor),
+                customValueColor: normalizeColor(input.customValueColor, defaults.customValueColor),
+                customAccentColor: normalizeColor(input.customAccentColor, defaults.customAccentColor),
+                customTrackColor: normalizeColor(input.customTrackColor, defaults.customTrackColor),
+            };
+        }
+
+        function normalizeColor(value, fallback) {
+            const trimmed = (value || "").trim();
+            return trimmed || fallback;
+        }
+
+        function normalizeTheme(value) {
+            if (value === "neon" || value === "minimal" || value === "retro" || value === "custom") return value;
+            return "default";
+        }
+
+        function normalizeSuffixMode(value) {
+            if (value === "off" || value === "below") {
+                return value;
+            }
+            return "inline";
+        }
+
+        function normalizeViewStyle(value) {
+            if (value === "line" || value === "line-filled" || value === "gauge") {
+                return value;
+            }
+            return "value";
+        }
+
+        function clampInt(value, min, max, fallback) {
+            const numeric = Number(value);
+            if (Number.isNaN(numeric)) {
+                return fallback;
+            }
+            return Math.min(max, Math.max(min, Math.round(numeric)));
+        }
+
+        function clampNumber(value, min, max, fallback) {
+            const numeric = Number(value);
+            if (Number.isNaN(numeric)) {
+                return fallback;
+            }
+            return Math.min(max, Math.max(min, numeric));
+        }
+
+        function applySettingsToForm() {
+            controls.theme.value = settings.theme;
+            controls.customColors.style.display = settings.theme === "custom" ? "block" : "none";
+            setColorPair(controls.customBg0, controls.customBg0Text, settings.customBg0);
+            setColorPair(controls.customBg1, controls.customBg1Text, settings.customBg1);
+            setColorPair(controls.customBorderColor, controls.customBorderColorText, settings.customBorderColor);
+            setColorPair(controls.customLabelColor, controls.customLabelColorText, settings.customLabelColor);
+            setColorPair(controls.customValueColor, controls.customValueColorText, settings.customValueColor);
+            setColorPair(controls.customAccentColor, controls.customAccentColorText, settings.customAccentColor);
+            setColorPair(controls.customTrackColor, controls.customTrackColorText, settings.customTrackColor);
+            controls.endpointUrl.value = settings.endpointUrl;
+            controls.label.value = settings.label;
+            controls.hideLabel.checked = settings.hideLabel;
+            controls.label.disabled = settings.hideLabel;
+            controls.labelX.value = settings.labelX;
+            controls.labelY.value = settings.labelY;
+            controls.labelSize.value = settings.labelSize;
+            setColorPair(controls.labelStrokeColor, controls.labelStrokeColorText, settings.labelStrokeColor);
+            controls.labelStrokeWidth.value = settings.labelStrokeWidth;
+            controls.valueX.value = settings.valueX;
+            controls.valueY.value = settings.valueY;
+            controls.valueSize.value = settings.valueSize;
+            controls.suffixMode.value = settings.suffixMode;
+            setColorPair(controls.valueStrokeColor, controls.valueStrokeColorText, settings.valueStrokeColor);
+            controls.valueStrokeWidth.value = settings.valueStrokeWidth;
+            controls.useCustomScale.checked = settings.useCustomScale;
+            controls.scaleMin.value = settings.scaleMin;
+            controls.scaleMax.value = settings.scaleMax;
+            updateScaleControlsState();
+            updateSliderValueLabels();
+            controls.viewStyle.value = settings.viewStyle;
+            controls.fontFamily.value = settings.fontFamily;
+            controls.decimals.value = settings.decimals;
+            controls.refreshMs.value = settings.refreshMs;
+            controls.lineSamples.value = settings.lineSamples;
+
+            if (controls.metricKey.options.length === 0) {
+                const option = document.createElement("option");
+                option.value = settings.metricKey;
+                option.textContent = settings.metricKey;
+                controls.metricKey.appendChild(option);
+            }
+            controls.metricKey.value = settings.metricKey;
+        }
+
+        function updateMetricOptions(keys, errorText) {
+            const selected = settings.metricKey;
+            controls.metricKey.innerHTML = "";
+
+            if (keys.length === 0) {
+                const option = document.createElement("option");
+                option.value = selected;
+                option.textContent = selected;
+                controls.metricKey.appendChild(option);
+                controls.status.textContent = errorText || "No metrics found from endpoint.";
+                return;
+            }
+
+            for (const key of keys) {
+                const option = document.createElement("option");
+                option.value = key;
+                option.textContent = key;
+                controls.metricKey.appendChild(option);
+            }
+
+            if (keys.includes(selected)) {
+                controls.metricKey.value = selected;
+            } else {
+                controls.metricKey.value = keys[0];
+                settings.metricKey = keys[0];
+                saveSettings();
+            }
+
+            controls.status.textContent = `${keys.length} metrics loaded.`;
+        }
+
+        function requestMetricList() {
+            if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+                return;
+            }
+
+            controls.status.textContent = "Loading metrics...";
+            websocket.send(JSON.stringify({
+                action: actionUuid,
+                event: "sendToPlugin",
+                context,
+                payload: {
+                    type: "request-metrics-list",
+                    endpointUrl: controls.endpointUrl.value.trim() || defaults.endpointUrl,
+                },
+            }));
+        }
+
+        function saveSettings() {
+            settings = normalize({
+                theme: controls.theme.value,
+                customBg0: controls.customBg0Text.value,
+                customBg1: controls.customBg1Text.value,
+                customBorderColor: controls.customBorderColorText.value,
+                customLabelColor: controls.customLabelColorText.value,
+                customValueColor: controls.customValueColorText.value,
+                customAccentColor: controls.customAccentColorText.value,
+                customTrackColor: controls.customTrackColorText.value,
+                endpointUrl: controls.endpointUrl.value,
+                metricKey: controls.metricKey.value,
+                label: controls.label.value,
+                hideLabel: controls.hideLabel.checked,
+                labelX: controls.labelX.value,
+                labelY: controls.labelY.value,
+                labelSize: controls.labelSize.value,
+                labelStrokeColor: controls.labelStrokeColorText.value,
+                labelStrokeWidth: controls.labelStrokeWidth.value,
+                valueX: controls.valueX.value,
+                valueY: controls.valueY.value,
+                valueSize: controls.valueSize.value,
+                suffixMode: controls.suffixMode.value,
+                valueStrokeColor: controls.valueStrokeColorText.value,
+                valueStrokeWidth: controls.valueStrokeWidth.value,
+                useCustomScale: controls.useCustomScale.checked,
+                scaleMin: controls.scaleMin.value,
+                scaleMax: controls.scaleMax.value,
+                viewStyle: controls.viewStyle.value,
+                fontFamily: controls.fontFamily.value,
+                decimals: controls.decimals.value,
+                refreshMs: controls.refreshMs.value,
+                lineSamples: controls.lineSamples.value,
+            });
+
+            if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+                return;
+            }
+
+            websocket.send(JSON.stringify({
+                event: "setSettings",
+                context,
+                payload: settings,
+            }));
+        }
+
+        controls.theme.addEventListener("change", () => {
+            const isCustom = controls.theme.value === "custom";
+            controls.customColors.style.display = isCustom ? "block" : "none";
+            const preset = THEME_PRESETS[controls.theme.value] || THEME_PRESETS.default;
+            if (preset.viewStyle)  controls.viewStyle.value  = preset.viewStyle;
+            if (preset.fontFamily) controls.fontFamily.value = preset.fontFamily;
+            if (preset.valueSize)  controls.valueSize.value  = preset.valueSize;
+            updateSliderValueLabels();
+            saveSettings();
+        });
+
+        function setColorPair(picker, textInput, value) {
+            const hex = toSafeHex(value);
+            picker.value = hex;
+            textInput.value = value || hex;
+        }
+
+        function toSafeHex(value) {
+            if (!value) return "#000000";
+            // Strip alpha for the color picker (doesn't support 8-digit hex)
+            const cleaned = value.replace(/[^#0-9a-fA-F]/g, "");
+            if (/^#[0-9a-fA-F]{6}$/.test(cleaned)) return cleaned;
+            if (/^#[0-9a-fA-F]{8}$/.test(cleaned)) return cleaned.slice(0, 7);
+            return "#000000";
+        }
+
+        function bindColorPair(picker, textInput) {
+            picker.addEventListener("input", () => {
+                textInput.value = picker.value;
+                saveSettings();
+            });
+            textInput.addEventListener("change", () => {
+                picker.value = toSafeHex(textInput.value);
+                saveSettings();
+            });
+        }
+
+        function updateSliderValueLabels() {
+            controls.labelXValue.textContent = controls.labelX.value;
+            controls.labelYValue.textContent = controls.labelY.value;
+            controls.labelSizeValue.textContent = controls.labelSize.value;
+            controls.labelStrokeWidthValue.textContent = Number(controls.labelStrokeWidth.value).toFixed(2);
+            controls.valueXValue.textContent = controls.valueX.value;
+            controls.valueYValue.textContent = controls.valueY.value;
+            controls.valueSizeValue.textContent = controls.valueSize.value;
+            controls.valueStrokeWidthValue.textContent = Number(controls.valueStrokeWidth.value).toFixed(2);
+        }
+
+        function bindRangeSlider(control, valueLabel) {
+            control.addEventListener("input", () => {
+                valueLabel.textContent = control.value;
+                saveSettings();
+            });
+            control.addEventListener("change", saveSettings);
+        }
+
+        function updateScaleControlsState() {
+            const disabled = !controls.useCustomScale.checked;
+            controls.scaleMin.disabled = disabled;
+            controls.scaleMax.disabled = disabled;
+        }
+
+        bindColorPair(controls.customBg0, controls.customBg0Text);
+        bindColorPair(controls.customBg1, controls.customBg1Text);
+        bindColorPair(controls.customBorderColor, controls.customBorderColorText);
+        bindColorPair(controls.customLabelColor, controls.customLabelColorText);
+        bindColorPair(controls.customValueColor, controls.customValueColorText);
+        bindColorPair(controls.customAccentColor, controls.customAccentColorText);
+        bindColorPair(controls.customTrackColor, controls.customTrackColorText);
+        bindColorPair(controls.labelStrokeColor, controls.labelStrokeColorText);
+        bindColorPair(controls.valueStrokeColor, controls.valueStrokeColorText);
+
+        controls.endpointUrl.addEventListener("change", () => {
+            saveSettings();
+            requestMetricList();
+        });
+
+        controls.metricKey.addEventListener("change", saveSettings);
+        controls.label.addEventListener("change", saveSettings);
+        controls.hideLabel.addEventListener("change", () => {
+            controls.label.disabled = controls.hideLabel.checked;
+            saveSettings();
+        });
+        bindRangeSlider(controls.labelX, controls.labelXValue);
+        bindRangeSlider(controls.labelY, controls.labelYValue);
+        bindRangeSlider(controls.labelSize, controls.labelSizeValue);
+        bindRangeSlider(controls.labelStrokeWidth, controls.labelStrokeWidthValue);
+        bindRangeSlider(controls.valueX, controls.valueXValue);
+        bindRangeSlider(controls.valueY, controls.valueYValue);
+        bindRangeSlider(controls.valueSize, controls.valueSizeValue);
+        bindRangeSlider(controls.valueStrokeWidth, controls.valueStrokeWidthValue);
+        controls.suffixMode.addEventListener("change", saveSettings);
+        controls.useCustomScale.addEventListener("change", () => {
+            updateScaleControlsState();
+            saveSettings();
+        });
+        controls.scaleMin.addEventListener("change", saveSettings);
+        controls.scaleMax.addEventListener("change", saveSettings);
+        controls.viewStyle.addEventListener("change", saveSettings);
+        controls.fontFamily.addEventListener("change", saveSettings);
+        controls.decimals.addEventListener("change", saveSettings);
+        controls.refreshMs.addEventListener("change", saveSettings);
+        controls.lineSamples.addEventListener("change", saveSettings);
+    </script>
+</body>
+
+</html>
